@@ -11,14 +11,13 @@ var PORT = 32792;
 var solr = "solr"
 var app = express();
 
-var parse_params = function(params){
+var parse_params = function(params, method){
     var url = HOST + ":" + PORT + "/" + solr;
     if(params.collection && params.field && params.term){
-        url = url + "/" + params.collection + "/select/"
+		url = url + "/" + params.collection + "/" + method
         return url;
     }else{
         return null;
-        //url = url +  "/" + params.collection +
     }
 };
 
@@ -41,14 +40,17 @@ var parse_options = function(params, options, url){
 
 // API DEFINITION
 app.get('/select/:collection/:field/:term', function (req, res) {
-    do_request(req,res);
+    do_request(req,res,"select");
 });
-app.get('/suggest/:collection/:field/:prefeix', function (req, res) {
-
+app.get('/suggest/:collection/:field/:prefix', function (req, res) {
+	do_request(req,res,"suggest");
+});
+app.get('/delete/:collection/:field/:term', function (req, res) {
+	do_request(req,res,"delete");
 });
 
-var do_request = function(req, res){
-    var url = parse_params(req.params);
+var do_request = function(req, res,method){
+    var url = parse_params(req.params,method);
     url = parse_options(req.params, req.query, url);
     // Implement generic function to make Solr Rest calls
     if(url) {
